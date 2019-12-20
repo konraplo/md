@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package dslVersion="1.0.0.0" 
+        Id="4162809e-c214-4f3f-bb96-3013737474cf" 
+        solutionId="4162809e-c214-4f3f-bb96-3013737474cf" 
+        xmlns="http://schemas.microsoft.com/VisualStudio/2008/SharePointTools/PackageModel" 
+        name="Join.AuditManagement.Notifications"
+        sharePointProductVersion="16.0">
+</package>
