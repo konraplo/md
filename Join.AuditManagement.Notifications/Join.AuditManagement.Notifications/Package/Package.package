@@ -1,5 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" dslVersion="1.0.0.0" Id="4162809e-c214-4f3f-bb96-3013737474cf" solutionId="4162809e-c214-4f3f-bb96-3013737474cf" resetWebServer="false" sharePointProductVersion="16.0" name="Join.AuditManagement.Notifications" xmlns="http://schemas.microsoft.com/VisualStudio/2008/SharePointTools/PackageModel">
+  <features>
+    <featureReference itemId="3dd1e6c6-574c-48b8-9fab-e73ffdad7471" />
+  </features>
   <projectItems>
     <projectItemReference itemId="e7a21277-5b96-420b-bd4a-88857fdc7313" />
   </projectItems>
