@@ -62,9 +62,17 @@
     <None Include="Package\Package.Template.xml">
       <DependentUpon>Package.package</DependentUpon>
     </None>
+    <None Include="Resources\SharePointProjectItem.spdata">
+      <SharePointProjectItemId>{e7a21277-5b96-420b-bd4a-88857fdc7313}</SharePointProjectItemId>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Common\" />
     <Folder Include="Features\" />
+    <Folder Include="TimerJobs\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Join.AuditManagement.Notifications.en-US.resx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
