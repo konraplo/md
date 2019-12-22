@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\JoinAMUtilities.cs" />
+    <Compile Include="Common\ListUtilities.cs" />
     <Compile Include="Common\Logger.cs" />
     <Compile Include="Features\JoinAMTimerjobs\JoinAMTimerjobs.EventReceiver.cs">
       <DependentUpon>JoinAMTimerjobs.feature</DependentUpon>
