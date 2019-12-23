@@ -35,9 +35,16 @@ namespace TestConsoleApp
                                         </Value>
                                      </Eq></Where>";
 
+        private const string DocumentOverdueFirstReminderBody = @"Sehr geehrte KollegInnen,<br/> 
+ 
+                                                                    ein Dokument, für das Sie verantwortlich sind, verliert in 30 Tagen seine Gültigkeit.<br/> 
+                                                                    Wir bitten um Prüfung und Bearbeitung bis zum angegebenen Zeitpunkt:<br/>
+                                                                    {0} <br/><br/>
+                                                                    <a href='{1}'>Link zum Dokument</a>";
+
         static void Main(string[] args)
         {
-            TestGetDCDocu(@"http://spvm/quam/quam1");
+            TestSendNotificationForDocuments(@"http://spvm/quam/quam1");
 
         }
 
@@ -52,19 +59,129 @@ namespace TestConsoleApp
             }
         }
 
-        private static void GetDCDocu(SPWeb web)
+        private static void TestSendNotificationForDocuments(string siteUrl)
+        {
+            using (SPSite site = new SPSite(siteUrl))
+            {
+                using (SPWeb web = site.OpenWeb())
+                {
+                    SendNotificationForDocuments(web, GetDCDocu(web),"", DocumentOverdueFirstReminderBody, 1); ;
+                }
+            }
+        }
+
+        private static SPListItemCollection GetDCDocu(SPWeb web)
         {
             SPList list = web.GetList(SPUtility.ConcatUrls(web.Url, "Downloadcenter"));
             SPQuery query = new SPQuery();
 
             // late contracts
-            query.Query = string.Format(queryDocuByAblaufdatum, -1);
+            query.Query = string.Format(queryDocuByAblaufdatum, 0);
             SPListItemCollection documents = list.GetItems(query);
 
             foreach (SPListItem docuItem in documents)
             {
                 Console.WriteLine(string.Format("docu:{0}", docuItem.DisplayName));
             }
+
+            return documents;
+        }
+
+        private static void SendNotificationForDocuments(SPWeb web, SPListItemCollection documents, string mailTitle, string mailBody, int reminderCount)
+        {
+            SPGroup groupProcessMgmnt = web.SiteGroups.GetByName("Prozessmanagament-Team");
+            SPGroup groupQualityMgmnt = web.SiteGroups.GetByName("Qualitätsmanagement-Team");
+            StringBuilder maito = new StringBuilder();
+            List<int> userId = new List<int>();
+            if (reminderCount == 3) //third reminder
+            {
+                foreach (SPUser user in groupProcessMgmnt.Users)
+                {
+                    if (userId.Contains(user.ID))
+                    {
+                        continue;
+                    }
+                    userId.Add(user.ID);
+                    if (!string.IsNullOrEmpty(user.Email))
+                    {
+                        maito.Append(user.Email).Append(";");
+                    }
+                }
+
+                foreach (SPUser user in groupQualityMgmnt.Users)
+                {
+                    if (userId.Contains(user.ID))
+                    {
+                        continue;
+                    }
+                    userId.Add(user.ID);
+                    if (!string.IsNullOrEmpty(user.Email))
+                    {
+                        maito.Append(user.Email).Append(";");
+                    }
+                }
+            }
+           
+
+            foreach (SPListItem documentItem in documents)
+            {
+                SPFieldUserValueCollection documentResponsible = documentItem["Dokumentenverantwortlicher"] as SPFieldUserValueCollection;
+                if (documentResponsible == null)
+                {
+                      continue;
+                }
+               
+                string url = Convert.ToString(documentItem[SPBuiltInFieldId.EncodedAbsUrl]);
+                DateTime dueDate = Convert.ToDateTime(documentItem["Ablaufdatum"]);
+                foreach (SPFieldUserValue user in documentResponsible)
+                {
+                    if (userId.Contains(user.User.ID))
+                    {
+                        continue;
+                    }
+                    userId.Add(user.User.ID);
+                    if (!string.IsNullOrEmpty(user.User.Email))
+                    {
+                        maito.Append(user.User.Email).Append(";");
+                    }
+                }
+
+                if (reminderCount == 1) //first reminder
+                {
+                    mailBody = string.Format(mailBody, dueDate.ToShortDateString(), url);
+                }
+                else
+                {
+                    mailBody = string.Format(mailBody, url);
+                }
+
+                //todo: send mail
+            }
+        }
+
+        /// <summary>
+        /// check if specified group exsits
+        /// </summary>
+        /// <param name="groups"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static SPGroup GetGroupBy(SPGroupCollection groups, string name)
+        {
+            if (string.IsNullOrEmpty(name) ||
+                (name.Length > 255) ||
+                (groups == null) ||
+                (groups.Count == 0))
+                return null;
+
+            foreach (SPGroup group in groups)
+            {
+                if (group.Name.Equals(name))
+                {
+                    return group;
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.SharePoint;
+using Microsoft.SharePoint.Administration;
 using Microsoft.SharePoint.Utilities;
+using System;
 
 namespace Join.AuditManagement.Notifications.Common
 {
@@ -25,6 +27,21 @@ namespace Join.AuditManagement.Notifications.Common
                                      </Eq></Where>";
 
         /// <summary>
+        /// Groups used in AM
+        /// </summary>
+        public static class GroupNames
+        {
+            /// <summary>
+            /// Name of the user group for storing members of the process management
+            /// </summary>
+            public const string ProcessMgmnt = "Prozessmanagament-Team";
+            /// <summary>
+            /// Name of the user group for storing members of the quality management
+            /// </summary>
+            public const string QualityMgmnt = "Qualitätsmanagement-Team";
+        }
+
+        /// <summary>
         /// Find documents in download center by 'Ablaufdatum'
         /// </summary>
         /// <param name="web">Quam web</param>
@@ -39,6 +56,64 @@ namespace Join.AuditManagement.Notifications.Common
             SPListItemCollection documents = list.GetItems(query);
 
             return documents;
+        }
+
+        /// <summary>
+        /// Iterates through all site collections od the site collection and returns the URL of the web, where the Feature is activated
+        /// </summary>
+        /// <param name="site">SPWebApplication to search for the SiteCollection</param>
+        /// <param name="featureGuid">Feature to search for</param>
+        /// <returns>Url of site. Returns string.Empty if not found</returns>
+        public static string FindWebUrlByFeature(SPSite site, Guid featureGuid)
+        {
+            if (site == null) throw new ArgumentNullException("WebApplication must be not NULL! (FindWebUrlByFeature)");
+
+            try
+            {
+                foreach (SPWeb web in site.AllWebs)
+                {
+                    bool featureFound = (web.Features[featureGuid] != null);
+                    string url = web.Url;
+                    web.Dispose();
+                    if (featureFound) return url;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLog(Logger.Category.Unexpected, typeof(JoinAMUtilities).Name, string.Format("FindWebUrlByFeature error:{0}", ex.Message));
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Iterates through all site collections od the WebApplication and returns the ID of the Site, where Feature is activated
+        /// </summary>
+        /// <param name="webApp">SPWebApplication to search for the SiteCollection</param>
+        /// <param name="featureGuid">Feature to search for</param>
+        /// <returns>GUID of the SiteCollection. Returns Guid.Empty if not found</returns>
+        public static Guid FindSiteCollIdByFeature(SPWebApplication webApp, Guid featureGuid)
+        {
+            if (webApp == null) throw new ArgumentNullException("WebApplication must be not NULL! (FindWebUrlByFeature)");
+
+            Guid retval = Guid.Empty;
+
+            try
+            {
+                foreach (SPSite site in webApp.Sites)
+                {
+                    bool featureFound = (site.RootWeb.Features[featureGuid] != null);
+                    if (featureFound) return site.ID;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLog(Logger.Category.Unexpected, typeof(JoinAMUtilities).Name, string.Format("FindSiteCollIdByFeature error:{0}", ex.Message));
+            }
+
+            return retval;
         }
     }
 }
