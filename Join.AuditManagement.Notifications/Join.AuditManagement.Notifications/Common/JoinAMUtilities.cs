@@ -9,7 +9,9 @@ namespace Join.AuditManagement.Notifications.Common
     public static class JoinAMUtilities
     {
         public const string JoinAMNotificationTimerJobName = "Join Audit Management Notification Timer job";
-        
+        public const string ResxForJoinAMNotifications = "$Resources:COSIntranet,{0}";
+        public const string JoinAMNotificationsDefaultResourceFile = "COSIntranet";
+
         /// <summary>
         /// Query document by 'Ablaufdatum'
         /// </summary>
@@ -28,12 +30,11 @@ namespace Join.AuditManagement.Notifications.Common
         /// <param name="web">Quam web</param>
         /// <param name="offsetDays">offset in days (can be negative)</param>
         /// <returns></returns>
-        public static SPListItemCollection findDocumentsByAblaufdatum(SPWeb web, int offsetDays)
+        public static SPListItemCollection FindDocumentsByAblaufdatum(SPWeb web, int offsetDays)
         {
             SPList list = web.GetList(SPUtility.ConcatUrls(web.Url, ListUtilities.Urls.Downloadcenter));
             SPQuery query = new SPQuery();
 
-            // late contracts
             query.Query = string.Format(queryDocumentsByAblaufdatum, offsetDays);
             SPListItemCollection documents = list.GetItems(query);
 

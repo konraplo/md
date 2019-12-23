@@ -45,7 +45,6 @@
         /// <param name="targetInstanceId">ID of the job instance</param>
         public override void Execute(Guid targetInstanceId)
         {
-            Logger.WriteLog(Logger.Category.Information, this.GetType().Name, "Entered Executemethod.");
             JoinAMNotificationTimerJobExecutor executer = new JoinAMNotificationTimerJobExecutor();
             executer.Execute(this);
         }

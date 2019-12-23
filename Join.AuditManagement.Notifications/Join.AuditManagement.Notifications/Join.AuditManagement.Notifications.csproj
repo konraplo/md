@@ -77,12 +77,14 @@
       <SharePointProjectItemId>{e7a21277-5b96-420b-bd4a-88857fdc7313}</SharePointProjectItemId>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Resources\Join.AuditManagement.Notifications..resx" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Features\JoinAMTimerjobs\JoinAMTimerjobs.Template.xml">
       <DependentUpon>JoinAMTimerjobs.feature</DependentUpon>
     </Content>
-    <Content Include="Resources\Join.AuditManagement.Notifications.en-US.resx" />
+    <Content Include="Resources\Join.AuditManagement.Notifications.de-DE.resx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
