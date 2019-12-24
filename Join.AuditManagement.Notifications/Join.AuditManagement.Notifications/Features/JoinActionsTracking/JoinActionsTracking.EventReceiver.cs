@@ -76,6 +76,7 @@ namespace Join.AuditManagement.Notifications.Features.JoinActionsTracking
 
             JoinAMUtilities.AddListEventReceiver(actionsList, SPEventReceiverType.ItemAdded, Assembly.GetExecutingAssembly().FullName, "Join.AuditManagement.Notifications.EventReceivers.ActionsListEventReceiver", false);
             JoinAMUtilities.AddListEventReceiver(actionsList, SPEventReceiverType.ItemUpdated, Assembly.GetExecutingAssembly().FullName, "Join.AuditManagement.Notifications.EventReceivers.ActionsListEventReceiver", false);
+            JoinAMUtilities.AddListEventReceiver(actionsList, SPEventReceiverType.ItemUpdating, Assembly.GetExecutingAssembly().FullName, "Join.AuditManagement.Notifications.EventReceivers.ActionsListEventReceiver", true);
 
         }
     }

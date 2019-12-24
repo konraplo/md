@@ -52,6 +52,7 @@
     <Reference Include="Microsoft.SharePoint.Client.ServerRuntime" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\ActionStatus.cs" />
     <Compile Include="Common\Fields.cs" />
     <Compile Include="Common\JoinAMUtilities.cs" />
     <Compile Include="Common\ListUtilities.cs" />
