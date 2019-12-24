@@ -89,7 +89,7 @@
     <Content Include="Features\JoinActionsTracking\JoinActionsTracking.Template.xml">
       <DependentUpon>JoinActionsTracking.feature</DependentUpon>
     </Content>
-    <Content Include="Resources\Join.AuditManagement.Notifications..resx" />
+    <Content Include="Resources\Join.AuditManagement.Notifications.resx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Features\JoinAMTimerjobs\JoinAMTimerjobs.Template.xml">
