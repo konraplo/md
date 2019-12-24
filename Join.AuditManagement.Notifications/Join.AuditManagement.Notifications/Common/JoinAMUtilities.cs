@@ -115,5 +115,61 @@ namespace Join.AuditManagement.Notifications.Common
 
             return retval;
         }
+
+        /// <summary>
+        /// add event receiver to spcified list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="type"></param>
+        /// <param name="assembly"></param>
+        /// <param name="className"></param>
+        /// <param name="synchronous"></param>
+        public static void AddListEventReceiver(SPList list, SPEventReceiverType type, string assembly, string className, bool synchronous)
+        {
+            using (SPSite site = new SPSite(list.ParentWeb.Site.ID))
+            {
+                using (SPWeb rootWeb = site.OpenWeb(list.ParentWeb.ID))
+                {
+                    list = rootWeb.Lists[list.ID];
+                    DeleteListEventReceiver(list, type);
+
+
+                    list.EventReceivers.Add(type,
+                                           assembly,
+                                           className);
+
+                    if (synchronous)
+                    {
+                        foreach (SPEventReceiverDefinition receiver in list.EventReceivers)
+                        {
+                            if (receiver.Type == type)
+                            {
+                                receiver.Synchronization = SPEventReceiverSynchronization.Synchronous;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// remove event receiver from specified list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="type"></param>
+        public static void DeleteListEventReceiver(SPList list, SPEventReceiverType type)
+        {
+            foreach (SPEventReceiverDefinition evt in list.EventReceivers)
+            {
+                if (evt.Type == type)
+                {
+                    evt.Delete();
+                    break;
+                }
+            }
+
+            list.Update();
+        }
+
     }
 }

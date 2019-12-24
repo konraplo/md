@@ -11,6 +11,7 @@
         public static class Urls
         {
             public const string Downloadcenter = "Downloadcenter";
+            public const string Actions = "Lists/Actions";
         }
     }
 }

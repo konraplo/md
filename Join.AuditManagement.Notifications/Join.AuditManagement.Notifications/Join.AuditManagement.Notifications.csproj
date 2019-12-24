@@ -56,6 +56,10 @@
     <Compile Include="Common\JoinAMUtilities.cs" />
     <Compile Include="Common\ListUtilities.cs" />
     <Compile Include="Common\Logger.cs" />
+    <Compile Include="EventReceivers\ActionsListEventReceiver.cs" />
+    <Compile Include="Features\JoinActionsTracking\JoinActionsTracking.EventReceiver.cs">
+      <DependentUpon>JoinActionsTracking.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\JoinAMTimerjobs\JoinAMTimerjobs.EventReceiver.cs">
       <DependentUpon>JoinAMTimerjobs.feature</DependentUpon>
     </Compile>
@@ -64,6 +68,9 @@
     <Compile Include="TimerJobs\JoinAMNotificationTimerJobExecutor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Features\JoinActionsTracking\JoinActionsTracking.feature">
+      <FeatureId>{2900dfc3-7a80-439a-a598-452caf8ddbfe}</FeatureId>
+    </None>
     <None Include="Features\JoinAMTimerjobs\JoinAMTimerjobs.feature">
       <FeatureId>{3dd1e6c6-574c-48b8-9fab-e73ffdad7471}</FeatureId>
     </None>
@@ -79,6 +86,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Features\JoinActionsTracking\JoinActionsTracking.Template.xml">
+      <DependentUpon>JoinActionsTracking.feature</DependentUpon>
+    </Content>
     <Content Include="Resources\Join.AuditManagement.Notifications..resx" />
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +97,7 @@
     </Content>
     <Content Include="Resources\Join.AuditManagement.Notifications.de-DE.resx" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
