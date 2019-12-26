@@ -117,6 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ActionAddedNotificationBody" xml:space="preserve">
+    <value>Sehr geehrte KollegInnen,&lt;br/&gt;&lt;br/&gt; 
+ 
+in Ihrem Verantwortungsbereich wurde eine Maßnahme  erfasst. Wir bitten um Bearbeitung bis zum angegebenen Zeitpunkt:&lt;br/&gt;
+{0}&lt;br/&gt;&lt;br/&gt; 
+&lt;a href='{1}'&gt;Link zum Maßnahme&lt;/a&gt;</value>
+  </data>
+  <data name="ActionAddedNotificationTitle" xml:space="preserve">
+    <value>Ihre Maßnahme</value>
+  </data>
   <data name="DocumentOverdueFirstReminderBody" xml:space="preserve">
     <value>Sehr geehrte KollegInnen,&lt;br/&gt; 
  

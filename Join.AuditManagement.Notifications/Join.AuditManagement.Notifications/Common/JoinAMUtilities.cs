@@ -11,8 +11,8 @@ namespace Join.AuditManagement.Notifications.Common
     public static class JoinAMUtilities
     {
         public const string JoinAMNotificationTimerJobName = "Join Audit Management Notification Timer job";
-        public const string ResxForJoinAMNotifications = "$Resources:COSIntranet,{0}";
-        public const string JoinAMNotificationsDefaultResourceFile = "COSIntranet";
+        public const string ResxForJoinAMNotifications = "$Resources:Join.AuditManagement.Notifications,{0}";
+        public const string JoinAMNotificationsDefaultResourceFile = "Join.AuditManagement.Notifications";
 
         /// <summary>
         /// Query document by 'Ablaufdatum'
@@ -169,6 +169,58 @@ namespace Join.AuditManagement.Notifications.Common
             }
 
             list.Update();
+        }
+
+        /// <summary>
+        /// Send eamil from sharepoint to user.
+        /// </summary>
+        /// <param name="pWeb"></param>
+        /// <param name="pTo"></param>
+        /// <param name="pBody"></param>
+        /// <param name="pSubject"></param>
+        /// <returns>true if mail was successfully send</returns>
+        public static bool SendEmail(SPWeb pWeb, string pTo, string pBody, string pSubject)
+        {
+            if (pWeb == null)
+            {
+                throw new ArgumentNullException("pWeb");
+            }
+            if (string.IsNullOrEmpty(pTo))
+            {
+                throw new ArgumentNullException("pTo");
+            }
+
+            System.Collections.Specialized.StringDictionary messageHeaders = new System.Collections.Specialized.StringDictionary();
+            //Get the “from email address” from “Outgoing e-mail settings”
+            string from = pWeb.Site.WebApplication.OutboundMailSenderAddress;
+            messageHeaders.Add("from", from);
+            messageHeaders.Add("to", pTo);
+            messageHeaders.Add("subject", pSubject);
+            messageHeaders.Add("content-type", "text/html");
+
+            bool isOK = false;
+            SPSecurity.RunWithElevatedPrivileges(delegate
+            {
+                try
+                {
+                    isOK = SPUtility.SendEmail(pWeb, messageHeaders, pBody);
+                    if (isOK)
+                    {
+                        Logger.WriteLog(Logger.Category.Information, typeof(JoinAMUtilities).FullName, "Email sent.");
+                    }
+                    else
+                    {
+                        Logger.WriteLog(Logger.Category.Information, typeof(JoinAMUtilities).FullName, "Email not sent.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.WriteLog(Logger.Category.Unexpected, typeof(JoinAMUtilities).FullName, string.Format("Problem with send email '{0}' to user '{1}' with error communicate '{2}' ", pSubject, pTo, ex.Message));
+                    throw new InvalidOperationException(string.Format("Problem with send email '{0}' to user '{1}' with error communicate '{2}' ", pSubject, pTo, ex.Message));
+                }
+            });
+
+            return isOK;
         }
 
     }

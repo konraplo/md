@@ -9,5 +9,7 @@
         public const string DocumentDueDate = "Ablaufdatum";
         public const string DocumentResponsible = "Dokumentenverantwortlicher";
         public const string ActionStatus = "StatusderMassnahme";
+        public const string ActionResponsible = "LintraAmActionResp";
+        public const string ActionPlannedRealisationDate = "LintraAmPlannedDateOfRealisation";
     }
 }
