@@ -147,6 +147,16 @@ folgende Maßnahme wurde abgeschlossen:
   <data name="ActionCompletedNotificationTitle" xml:space="preserve">
     <value>Ihre Maßnahme wurde abgeschlossen</value>
   </data>
+  <data name="ActionImplementedNotificationBody" xml:space="preserve">
+    <value>Sehr geehrte KollegInnen,
+&lt;br/&gt;&lt;br/&gt; 
+Folgende Maßnahme wurde umgesetzt:
+&lt;br/&gt;&lt;br/&gt; 
+&lt;a href='{0}'&gt;Link zum Maßnahme&lt;/a&gt;</value>
+  </data>
+  <data name="ActionImplementedNotificationTitle" xml:space="preserve">
+    <value>Eine Maßnahme wurde umgesetzt</value>
+  </data>
   <data name="DocumentOverdueFirstReminderBody" xml:space="preserve">
     <value>Sehr geehrte KollegInnen,&lt;br/&gt; 
  

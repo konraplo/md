@@ -40,6 +40,16 @@
         /// </summary>
         private const string ActionCanceledNotificationBody = "ActionCanceledNotificationBody";
 
+        /// <summary>
+        /// resx key for action implemented notification subject
+        /// </summary>
+        private const string ActionImplementedNotificationTitle = "ActionImplementedNotificationTitle";
+
+        /// <summary>
+        /// resx key for action implemented notification body
+        /// </summary>
+        private const string ActionImplementedNotificationBody = "ActionImplementedNotificationBody";
+
         /// <inheritdoc/>
         public override void ItemAdded(SPItemEventProperties properties)
         {
@@ -77,6 +87,7 @@
                     switch (actionStatusNew)
                     {
                         case ActionStatus.Implemented:
+                            SendNotificationForActionImplemented(properties.ListItem);
                             break;
                         case ActionStatus.Completed:
                             SendNotificationForActionCompleted(properties.ListItem);
@@ -112,6 +123,26 @@
                     DateTime dueDate = Convert.ToDateTime(actionItem[Fields.ActionPlannedRealisationDate]);
 
                     JoinAMUtilities.SendEmail(actionItem.Web, user.User.Email, string.Format(body, dueDate.ToShortDateString(), url), subject);
+
+                }
+            }
+        }
+
+        private void SendNotificationForActionImplemented(SPListItem actionItem)
+        {
+            string actionResponsible = Convert.ToString(actionItem[Fields.ActionResponsible]);
+            if (!string.IsNullOrEmpty(actionResponsible))
+            {
+                SPFieldUserValue user = new SPFieldUserValue(actionItem.Web, actionResponsible);
+                if (!string.IsNullOrEmpty(user.User.Email))
+                {
+                    // send notification
+                    Logger.WriteLog(Logger.Category.Information, typeof(ActionsListEventReceiver).FullName, string.Format("send action implemented notification to :{0}", user.User.Email));
+                    string subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, ActionImplementedNotificationTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, actionItem.Web.Language);
+                    string body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, ActionImplementedNotificationBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, actionItem.Web.Language);
+                    string url = Convert.ToString(actionItem[SPBuiltInFieldId.EncodedAbsUrl]);
+
+                    JoinAMUtilities.SendEmail(actionItem.Web, user.User.Email, string.Format(body, url), subject);
 
                 }
             }
