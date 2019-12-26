@@ -4,6 +4,8 @@
     using Microsoft.SharePoint;
     using Microsoft.SharePoint.Utilities;
     using System;
+    using System.Collections.Generic;
+    using System.Text;
 
     /// <summary>
     /// Event receivers for actions list
@@ -130,21 +132,31 @@
 
         private void SendNotificationForActionImplemented(SPListItem actionItem)
         {
-            string actionResponsible = Convert.ToString(actionItem[Fields.ActionResponsible]);
-            if (!string.IsNullOrEmpty(actionResponsible))
+            SPGroup groupQualityMgmnt = actionItem.Web.SiteGroups.GetByName(JoinAMUtilities.GroupNames.QualityMgmnt);
+            StringBuilder maito = new StringBuilder();
+            List<int> userId = new List<int>();
+            foreach (SPUser user in groupQualityMgmnt.Users)
             {
-                SPFieldUserValue user = new SPFieldUserValue(actionItem.Web, actionResponsible);
-                if (!string.IsNullOrEmpty(user.User.Email))
+                if (userId.Contains(user.ID))
                 {
-                    // send notification
-                    Logger.WriteLog(Logger.Category.Information, typeof(ActionsListEventReceiver).FullName, string.Format("send action implemented notification to :{0}", user.User.Email));
-                    string subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, ActionImplementedNotificationTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, actionItem.Web.Language);
-                    string body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, ActionImplementedNotificationBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, actionItem.Web.Language);
-                    string url = Convert.ToString(actionItem[SPBuiltInFieldId.EncodedAbsUrl]);
-
-                    JoinAMUtilities.SendEmail(actionItem.Web, user.User.Email, string.Format(body, url), subject);
-
+                    continue;
                 }
+                userId.Add(user.ID);
+                if (!string.IsNullOrEmpty(user.Email))
+                {
+                    maito.Append(user.Email).Append(";");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(maito.ToString()))
+            {
+                // send notification
+                Logger.WriteLog(Logger.Category.Information, typeof(ActionsListEventReceiver).FullName, string.Format("send action implemented notification to :{0}", maito.ToString()));
+                string subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, ActionImplementedNotificationTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, actionItem.Web.Language);
+                string body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, ActionImplementedNotificationBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, actionItem.Web.Language);
+                string url = Convert.ToString(actionItem[SPBuiltInFieldId.EncodedAbsUrl]);
+
+                JoinAMUtilities.SendEmail(actionItem.Web, maito.ToString(), string.Format(body, url), subject);
             }
         }
 
