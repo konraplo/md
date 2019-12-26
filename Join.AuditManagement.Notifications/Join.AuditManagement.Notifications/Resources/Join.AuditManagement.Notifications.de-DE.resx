@@ -127,6 +127,26 @@ in Ihrem Verantwortungsbereich wurde eine Maßnahme  erfasst. Wir bitten um Bear
   <data name="ActionAddedNotificationTitle" xml:space="preserve">
     <value>Ihre Maßnahme</value>
   </data>
+  <data name="ActionCanceledNotificationBody" xml:space="preserve">
+    <value>Sehr geehrte KollegInnen,
+&lt;br/&gt;&lt;br/&gt;
+folgende Maßnahme wurde abgebrochen:
+&lt;br/&gt;&lt;br/&gt; 
+&lt;a href='{0}'&gt;Link zum Maßnahme&lt;/a&gt;</value>
+  </data>
+  <data name="ActionCanceledNotificationTitle" xml:space="preserve">
+    <value>Eine Maßnahme wurde abgebrochen</value>
+  </data>
+  <data name="ActionCompletedNotificationBody" xml:space="preserve">
+    <value>Sehr geehrte KollegInnen, 
+&lt;br/&gt;&lt;br/&gt; 
+folgende Maßnahme wurde abgeschlossen: 
+&lt;br/&gt;&lt;br/&gt; 
+&lt;a href='{0}'&gt;Link zum Maßnahme&lt;/a&gt;</value>
+  </data>
+  <data name="ActionCompletedNotificationTitle" xml:space="preserve">
+    <value>Ihre Maßnahme wurde abgeschlossen</value>
+  </data>
   <data name="DocumentOverdueFirstReminderBody" xml:space="preserve">
     <value>Sehr geehrte KollegInnen,&lt;br/&gt; 
  

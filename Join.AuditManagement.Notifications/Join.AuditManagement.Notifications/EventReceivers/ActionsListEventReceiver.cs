@@ -20,6 +20,26 @@
         /// </summary>
         private const string ActionAddedNotificationBody = "ActionAddedNotificationBody";
 
+        /// <summary>
+        /// resx key for action completed notification subject
+        /// </summary>
+        private const string ActionCompletedNotificationTitle = "ActionCompletedNotificationTitle";
+
+        /// <summary>
+        /// resx key for action completed notification body
+        /// </summary>
+        private const string ActionCompletedNotificationBody = "ActionCompletedNotificationBody";
+
+        /// <summary>
+        /// resx key for action canceled notification subject
+        /// </summary>
+        private const string ActionCanceledNotificationTitle = "ActionCanceledNotificationTitle";
+
+        /// <summary>
+        /// resx key for action canceled notification body
+        /// </summary>
+        private const string ActionCanceledNotificationBody = "ActionCanceledNotificationBody";
+
         /// <inheritdoc/>
         public override void ItemAdded(SPItemEventProperties properties)
         {
@@ -59,8 +79,10 @@
                         case ActionStatus.Implemented:
                             break;
                         case ActionStatus.Completed:
+                            SendNotificationForActionCompleted(properties.ListItem);
                             break;
                         case ActionStatus.Canceled:
+                            SendNotificationForActionCanceled(properties.ListItem);
                             break;
                         default:
                             break;
@@ -90,6 +112,46 @@
                     DateTime dueDate = Convert.ToDateTime(actionItem[Fields.ActionPlannedRealisationDate]);
 
                     JoinAMUtilities.SendEmail(actionItem.Web, user.User.Email, string.Format(body, dueDate.ToShortDateString(), url), subject);
+
+                }
+            }
+        }
+
+        private void SendNotificationForActionCompleted(SPListItem actionItem)
+        {
+            string actionResponsible = Convert.ToString(actionItem[Fields.ActionResponsible]);
+            if (!string.IsNullOrEmpty(actionResponsible))
+            {
+                SPFieldUserValue user = new SPFieldUserValue(actionItem.Web, actionResponsible);
+                if (!string.IsNullOrEmpty(user.User.Email))
+                {
+                    // send notification
+                    Logger.WriteLog(Logger.Category.Information, typeof(ActionsListEventReceiver).FullName, string.Format("send action completed notification to :{0}", user.User.Email));
+                    string subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, ActionCompletedNotificationTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, actionItem.Web.Language);
+                    string body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, ActionCompletedNotificationBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, actionItem.Web.Language);
+                    string url = Convert.ToString(actionItem[SPBuiltInFieldId.EncodedAbsUrl]);
+
+                    JoinAMUtilities.SendEmail(actionItem.Web, user.User.Email, string.Format(body, url), subject);
+
+                }
+            }
+        }
+
+        private void SendNotificationForActionCanceled(SPListItem actionItem)
+        {
+            string actionResponsible = Convert.ToString(actionItem[Fields.ActionResponsible]);
+            if (!string.IsNullOrEmpty(actionResponsible))
+            {
+                SPFieldUserValue user = new SPFieldUserValue(actionItem.Web, actionResponsible);
+                if (!string.IsNullOrEmpty(user.User.Email))
+                {
+                    // send notification
+                    Logger.WriteLog(Logger.Category.Information, typeof(ActionsListEventReceiver).FullName, string.Format("send action canceled notification to :{0}", user.User.Email));
+                    string subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, ActionCanceledNotificationTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, actionItem.Web.Language);
+                    string body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, ActionCanceledNotificationBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, actionItem.Web.Language);
+                    string url = Convert.ToString(actionItem[SPBuiltInFieldId.EncodedAbsUrl]);
+
+                    JoinAMUtilities.SendEmail(actionItem.Web, user.User.Email, string.Format(body, url), subject);
 
                 }
             }
