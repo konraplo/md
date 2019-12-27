@@ -26,6 +26,16 @@
         /// 30 Tage nach Ablauf des Ablaufdatums
         /// </summary>
         private const int ThirdReminderDaysOffset = -30;
+               
+        /// <summary>
+        /// 1 Tage vor Ablauf des Ablaufdatums
+        /// </summary>
+        private const int ActionAfterPlannedRealisationDateDaysOffset = -1;
+
+        /// <summary>
+        /// 30 Tage nach Ablauf des Ablaufdatums
+        /// </summary>
+        private const int Action30AfterPlannedRealisationDateDaysOffset = -30;
 
         /// <summary>
         /// resx key for first reminder notification subject
@@ -57,7 +67,25 @@
         /// </summary>
         private const string DocumentOverdueThirdReminderBody = "DocumentOverdueThirdReminderBody";
 
-       
+        /// <summary>
+        /// resx key for action 1 day after overdue notification 
+        /// </summary>
+        private const string Action1DOverdueSecondReminderTitle = "Action1DOverdueSecondReminderTitle";
+
+        /// <summary>
+        /// resx key for  action 1 day after overdue notification body
+        /// </summary>
+        private const string Action1DOverdueSecondReminderBody = "Action1DOverdueSecondReminderBody";
+
+        /// <summary>
+        /// resx key for action 30 days after overdue notification 
+        /// </summary>
+        private const string Action30DOverdueSecondReminderTitle = "Action30DOverdueSecondReminderTitle";
+
+        /// <summary>
+        /// resx key for  action 30 days after overdue notification body
+        /// </summary>
+        private const string Action30DOverdueSecondReminderBody = "Action30DOverdueSecondReminderBody";
 
         /// <summary>
         /// Execute timer job logic
@@ -78,19 +106,19 @@
                         using (SPWeb web = site.OpenWeb())
                         {
 
-                            // Bei Ablauf des Ablaufdatums
-                            SPListItemCollection documents = JoinAMUtilities.FindDocumentsByAblaufdatum(web, FirstReminderDaysOffset);
-                            string subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueSecondReminderTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
-                            string body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueSecondReminderBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
+                            // Bei Ablauf des geplanten Umsetzungsdatums (am Folgetag)
+                            SPListItemCollection actions = JoinAMUtilities.FindOpenActionsByAblaufdatum(web, ActionAfterPlannedRealisationDateDaysOffset);
+                            string subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, Action1DOverdueSecondReminderTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
+                            string body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, Action1DOverdueSecondReminderBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
 
-                            SendNotificationForDocuments(web, documents, subject, body, 2);
+                            SendNotificationForActions(web, actions, subject, body, 1);
 
                             // 30 Tage nach Ablauf des Ablaufdatums
-                            documents = JoinAMUtilities.FindDocumentsByAblaufdatum(web, ThirdReminderDaysOffset);
-                            subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueThirdReminderTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
-                            body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueThirdReminderBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
+                            actions = JoinAMUtilities.FindOpenActionsByAblaufdatum(web, Action30AfterPlannedRealisationDateDaysOffset);
+                            subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, Action30DOverdueSecondReminderTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
+                            body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, Action30DOverdueSecondReminderBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
 
-                            SendNotificationForDocuments(web, documents, subject, body, 3);
+                            SendNotificationForActions(web, actions, subject, body, 2);
                         }
                     }
 
@@ -202,16 +230,68 @@
                     }
                 }
 
-                if (reminderCount == 1) //first reminder
+                if (!string.IsNullOrEmpty(maito.ToString()))
                 {
-                    mailBody = string.Format(mailBody, dueDate.ToShortDateString(), url);
-                }
-                else
-                {
-                    mailBody = string.Format(mailBody, url);
+                    if (reminderCount == 1) //first reminder
+                    {
+                        mailBody = string.Format(mailBody, dueDate.ToShortDateString(), url);
+                    }
+                    else
+                    {
+                        mailBody = string.Format(mailBody, url);
+                    }
+
+                    JoinAMUtilities.SendEmail(documentItem.Web, maito.ToString(), string.Format(mailBody, url), mailTitle);
                 }
 
-                //todo: send mail
+            }
+        }
+
+        private static void SendNotificationForActions(SPWeb web, SPListItemCollection actions, string mailTitle, string mailBody, int reminderCount)
+        {
+            SPGroup groupQualityMgmnt = web.SiteGroups.GetByName(JoinAMUtilities.GroupNames.QualityMgmnt);
+            StringBuilder maito = new StringBuilder();
+            List<int> userId = new List<int>();
+            if (reminderCount == 2) //second reminder
+            {
+                foreach (SPUser user in groupQualityMgmnt.Users)
+                {
+                    if (userId.Contains(user.ID))
+                    {
+                        continue;
+                    }
+                    userId.Add(user.ID);
+                    if (!string.IsNullOrEmpty(user.Email))
+                    {
+                        maito.Append(user.Email).Append(";");
+                    }
+                }
+            }
+
+
+            foreach (SPListItem actionItem in actions)
+            {
+                string actionResponsible = Convert.ToString(actionItem[Fields.ActionResponsible]);
+
+                if (string.IsNullOrEmpty(actionResponsible))
+                {
+                    continue;
+                }
+                SPFieldUserValue user = new SPFieldUserValue(actionItem.Web, actionResponsible);
+                string url = Convert.ToString(actionItem[SPBuiltInFieldId.EncodedAbsUrl]);
+                if (!string.IsNullOrEmpty(user.User.Email))
+                {
+                    if (!userId.Contains(user.User.ID))
+                    {
+                        maito.Append(user.User.Email).Append(";");
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(maito.ToString()))
+                {
+                    mailBody = string.Format(mailBody, url);
+                    JoinAMUtilities.SendEmail(actionItem.Web, maito.ToString(), string.Format(mailBody, url), mailTitle);
+                }
             }
         }
 

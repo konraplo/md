@@ -117,6 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Action1DOverdueSecondReminderBody" xml:space="preserve">
+    <value>Sehr geehrte KollegInnen, 
+&lt;br/&gt;&lt;br/&gt;
+die folgende Maßnahme zur Qualitätsverbesserung ist bis zum angegebenen Fälligkeitsdatum nicht erfolgt. Wir bitten um zeitnahe Erledigung:
+&lt;br/&gt;&lt;br/&gt; 
+&lt;a href='{0}'&gt;Link zum Maßnahme&lt;/a&gt;</value>
+  </data>
+  <data name="Action1DOverdueSecondReminderTitle" xml:space="preserve">
+    <value>Ihre Maßnahme</value>
+  </data>
+  <data name="Action30DOverdueSecondReminderBody" xml:space="preserve">
+    <value>Sehr geehrte KollegInnen, 
+&lt;br/&gt;&lt;br/&gt; 
+der Bearbeitungszeitraum Ihrer Maßnahme ist überschritten. Wir bitten um zeitnahe Erledigung:
+&lt;br/&gt;&lt;br/&gt; 
+&lt;a href='{0}'&gt;Link zum Maßnahme&lt;/a&gt;</value>
+  </data>
+  <data name="Action30DOverdueSecondReminderTitle" xml:space="preserve">
+    <value>Erinnerung - Ihre Maßnahme</value>
+  </data>
   <data name="ActionAddedNotificationBody" xml:space="preserve">
     <value>Sehr geehrte KollegInnen,&lt;br/&gt;&lt;br/&gt; 
  

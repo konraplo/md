@@ -77,7 +77,7 @@ namespace Join.AuditManagement.Notifications.Common
         }
 
         /// <summary>
-        /// Find documents in download center by 'Ablaufdatum'
+        /// Find actions by 'Ablaufdatum'
         /// </summary>
         /// <param name="web">Quam web</param>
         /// <param name="offsetDays">offset in days (can be negative)</param>

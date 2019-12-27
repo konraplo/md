@@ -41,13 +41,37 @@ namespace TestConsoleApp
                                                                     Wir bitten um Prüfung und Bearbeitung bis zum angegebenen Zeitpunkt:<br/>
                                                                     {0} <br/><br/>
                                                                     <a href='{1}'>Link zum Dokument</a>";
+        public const string queryActionsByAblaufdatum =
+                                  @"<Where>
+                                    <And>
+                                      <Eq>
+										  <FieldRef Name='StatusderMassnahme' />
+										  <Value Type='Text'>offen</Value>
+									  </Eq>
+                                     <Eq>
+                                        <FieldRef Name='LintraAmPlannedDateOfRealisation' />
+                                        <Value Type='DateTime'>
+                                            <Today OffsetDays='{0}' />
+                                        </Value>
+                                     </Eq>
+                                    </And></Where>";
 
         static void Main(string[] args)
         {
-            TestSendNotificationForDocuments(@"http://spvm/quam/quam1");
+            TestGetActions(@"http://spvm/quam/quam1");
 
         }
 
+        private static void TestGetActions(string siteUrl)
+        {
+            using (SPSite site = new SPSite(siteUrl))
+            {
+                using (SPWeb web = site.OpenWeb())
+                {
+                    GetActions(web);
+                }
+            }
+        }
         private static void TestGetDCDocu(string siteUrl)
         {
             using (SPSite site = new SPSite(siteUrl))
@@ -85,6 +109,23 @@ namespace TestConsoleApp
             }
 
             return documents;
+        }
+
+        private static SPListItemCollection GetActions(SPWeb web)
+        {
+            SPList list = web.GetList(SPUtility.ConcatUrls(web.Url, "Lists/Actions"));
+            SPQuery query = new SPQuery();
+
+            // late contracts
+            query.Query = string.Format(queryActionsByAblaufdatum, -1);
+            SPListItemCollection actions = list.GetItems(query);
+
+            foreach (SPListItem actionItem in actions)
+            {
+                Console.WriteLine(string.Format("title:{0}, ct:{1}", actionItem.Title, actionItem.ContentType.Parent.Name));
+            }
+
+            return actions;
         }
 
         private static void SendNotificationForDocuments(SPWeb web, SPListItemCollection documents, string mailTitle, string mailBody, int reminderCount)
