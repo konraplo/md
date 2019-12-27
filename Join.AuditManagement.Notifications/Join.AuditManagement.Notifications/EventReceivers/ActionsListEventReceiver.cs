@@ -134,7 +134,8 @@
         {
             if (!(actionItem.ContentType.Parent.Id == ContentTypeIds.RisikoChanceMassnahmen
                 || actionItem.ContentType.Parent.Id == ContentTypeIds.MassnahmeausUnternehmenszielen
-                || actionItem.ContentType.Parent.Id == ContentTypeIds.MassnahmeausPRIMA))
+                || actionItem.ContentType.Parent.Id == ContentTypeIds.MassnahmeausPRIMA
+                || actionItem.ContentType.Parent.Id == ContentTypeIds.Massnahme))
             {
                 return;
             }

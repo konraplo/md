@@ -21,5 +21,10 @@
         /// SPContentTypeId of the MassnahmeausPRIMA ContentType
         /// </summary>
         public static SPContentTypeId MassnahmeausPRIMA = new SPContentTypeId("0x0100D9009AAA078445DB9CAD017EEB2884EA0021CADF4988646B4D926500F5F9BC4AE001");
+
+        /// <summary>
+        /// SPContentTypeId of the Massnahme ContentType
+        /// </summary>
+        public static SPContentTypeId Massnahme = new SPContentTypeId("0x0100D9009AAA078445DB9CAD017EEB2884EA");
     }
 }
