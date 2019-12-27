@@ -132,6 +132,13 @@
 
         private void SendNotificationForActionImplemented(SPListItem actionItem)
         {
+            if (!(actionItem.ContentType.Parent.Id == ContentTypeIds.RisikoChanceMassnahmen
+                || actionItem.ContentType.Parent.Id == ContentTypeIds.MassnahmeausUnternehmenszielen
+                || actionItem.ContentType.Parent.Id == ContentTypeIds.MassnahmeausPRIMA))
+            {
+                return;
+            }
+
             SPGroup groupQualityMgmnt = actionItem.Web.SiteGroups.GetByName(JoinAMUtilities.GroupNames.QualityMgmnt);
             StringBuilder maito = new StringBuilder();
             List<int> userId = new List<int>();
