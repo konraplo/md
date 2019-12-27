@@ -27,6 +27,24 @@ namespace Join.AuditManagement.Notifications.Common
                                      </Eq></Where>";
 
         /// <summary>
+        /// Query opened actions by 'LintraAmPlannedDateOfRealisation'
+        /// </summary>
+        public const string queryActionsByAblaufdatum =
+                                   @"<Where>
+                                    <And>
+                                      <Eq>
+										  <FieldRef Name='StatusderMassnahme' />
+										  <Value Type='Text'>offen</Value>
+									  </Eq>
+                                     <Eq>
+                                        <FieldRef Name='LintraAmPlannedDateOfRealisation' />
+                                        <Value Type='DateTime'>
+                                            <Today OffsetDays='{0}' />
+                                        </Value>
+                                     </Eq>
+                                    </And></Where>";
+
+        /// <summary>
         /// Groups used in AM
         /// </summary>
         public static class GroupNames
@@ -56,6 +74,23 @@ namespace Join.AuditManagement.Notifications.Common
             SPListItemCollection documents = list.GetItems(query);
 
             return documents;
+        }
+
+        /// <summary>
+        /// Find documents in download center by 'Ablaufdatum'
+        /// </summary>
+        /// <param name="web">Quam web</param>
+        /// <param name="offsetDays">offset in days (can be negative)</param>
+        /// <returns></returns>
+        public static SPListItemCollection FindOpenActionsByAblaufdatum(SPWeb web, int offsetDays)
+        {
+            SPList list = web.GetList(SPUtility.ConcatUrls(web.Url, ListUtilities.Urls.Actions));
+            SPQuery query = new SPQuery();
+
+            query.Query = string.Format(queryActionsByAblaufdatum, offsetDays);
+            SPListItemCollection actions = list.GetItems(query);
+
+            return actions;
         }
 
         /// <summary>

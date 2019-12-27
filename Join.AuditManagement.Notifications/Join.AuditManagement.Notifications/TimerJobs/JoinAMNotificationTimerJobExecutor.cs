@@ -67,7 +67,42 @@
         {
         }
 
-        private static void SendTasksNotifications(string siteUrl)
+        private static void SendActionNotifications(string siteUrl)
+        {
+            if (!string.IsNullOrEmpty(siteUrl))
+            {
+                try
+                {
+                    using (SPSite site = new SPSite(siteUrl))
+                    {
+                        using (SPWeb web = site.OpenWeb())
+                        {
+
+                            // Bei Ablauf des Ablaufdatums
+                            SPListItemCollection documents = JoinAMUtilities.FindDocumentsByAblaufdatum(web, FirstReminderDaysOffset);
+                            string subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueSecondReminderTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
+                            string body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueSecondReminderBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
+
+                            SendNotificationForDocuments(web, documents, subject, body, 2);
+
+                            // 30 Tage nach Ablauf des Ablaufdatums
+                            documents = JoinAMUtilities.FindDocumentsByAblaufdatum(web, ThirdReminderDaysOffset);
+                            subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueThirdReminderTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
+                            body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueThirdReminderBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
+
+                            SendNotificationForDocuments(web, documents, subject, body, 3);
+                        }
+                    }
+
+                }
+                catch (Exception exception)
+                {
+                    Logger.WriteLog(Logger.Category.Unexpected, typeof(JoinAMNotificationTimerJobExecutor).FullName, string.Format("Error while sending notifications:{0}", exception.Message));
+                }
+            }
+        }
+
+        private static void SendDownloadsCenterNotifications(string siteUrl)
         {
             if (!string.IsNullOrEmpty(siteUrl))
             {
