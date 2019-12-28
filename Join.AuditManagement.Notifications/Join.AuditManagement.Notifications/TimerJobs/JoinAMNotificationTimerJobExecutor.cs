@@ -2,6 +2,7 @@
 {
     using Join.AuditManagement.Notifications.Common;
     using Microsoft.SharePoint;
+    using Microsoft.SharePoint.Administration;
     using Microsoft.SharePoint.Utilities;
     using System;
     using System.Collections.Generic;
@@ -93,6 +94,13 @@
         /// <param name="notificationTimerJob"></param>
         internal void Execute(JoinAMNotificationTimerJob notificationTimerJob)
         {
+            SPWebApplication webApplication = notificationTimerJob.WebApplication;
+            string siteUrl = JoinAMUtilities.FindJoinActionsTrackingSiteUrl(webApplication);
+            if (!string.IsNullOrEmpty(siteUrl))
+            {
+                SendDownloadsCenterNotifications(siteUrl);
+                SendActionNotifications(siteUrl);
+            }
         }
 
         private static void SendActionNotifications(string siteUrl)

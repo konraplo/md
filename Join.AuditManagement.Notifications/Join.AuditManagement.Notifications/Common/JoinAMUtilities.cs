@@ -13,6 +13,7 @@ namespace Join.AuditManagement.Notifications.Common
         public const string JoinAMNotificationTimerJobName = "Join Audit Management Notification Timer job";
         public const string ResxForJoinAMNotifications = "$Resources:Join.AuditManagement.Notifications,{0}";
         public const string JoinAMNotificationsDefaultResourceFile = "Join.AuditManagement.Notifications";
+        public static Guid JoinActionsTrackingFeatureId = Guid.Parse("9f96eb6f-c06d-4d6b-a8f5-393eebb2abaf");
 
         /// <summary>
         /// Query document by 'Ablaufdatum'
@@ -258,5 +259,34 @@ namespace Join.AuditManagement.Notifications.Common
             return isOK;
         }
 
+        /// <summary>
+        /// Iterates through all site collections od the WebApplication and returns the ID of the Site, where the "JoinActionsTracking"-Feature is activated
+        /// </summary>
+        /// <param name="webApp">SPWebApplication to search for the SiteCollection</param>
+        /// <returns>url of site. Returns string.Empty if not found</returns>
+        public static string FindJoinActionsTrackingSiteUrl(SPWebApplication webApp)
+        {
+            if (webApp == null) throw new ArgumentNullException("WebApplication must be not NULL! (FindJoinActionsTrackingSiteUrl)");
+
+            Guid siteId = FindSiteCollIdByFeature(webApp, JoinActionsTrackingFeatureId);
+            if (!siteId.Equals(Guid.Empty))
+            {
+                try
+                {
+                    Guid busiDevArtifactsFeatureGuid = new Guid("a3417bcf-d184-4f79-be16-a23c50462fa8");
+                    using (SPSite site = new SPSite(siteId))
+                    {
+                        return site.RootWeb.Url;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.WriteLog(Logger.Category.Unexpected, typeof(JoinAMUtilities).Name, string.Format("FindJoinActionsTrackingSiteUrl error:{0}", ex.Message));
+                }
+            }
+
+            return string.Empty;
+        }
     }
 }
