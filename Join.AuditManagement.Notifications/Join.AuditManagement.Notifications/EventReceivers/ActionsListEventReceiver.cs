@@ -85,7 +85,7 @@
             {
                 try
                 {
-                    //todo: check status and send notification
+                    // check status and send notification
                     switch (actionStatusNew)
                     {
                         case ActionStatus.Implemented:

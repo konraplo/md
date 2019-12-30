@@ -149,14 +149,14 @@
                         using (SPWeb web = site.OpenWeb())
                         {
                             // 30 Tage vor Ablauf des Ablaufdatums
-                            SPListItemCollection documents = JoinAMUtilities.FindDocumentsByAblaufdatum(web, SecondReminderDaysOffset);
+                            SPListItemCollection documents = JoinAMUtilities.FindDocumentsByAblaufdatum(web, FirstReminderDaysOffset);
                             string subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueFirstReminderTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
                             string body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueFirstReminderBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
 
                             SendNotificationForDocuments(web, documents, subject, body, 1);
 
                             // Bei Ablauf des Ablaufdatums
-                            documents = JoinAMUtilities.FindDocumentsByAblaufdatum(web, FirstReminderDaysOffset);
+                            documents = JoinAMUtilities.FindDocumentsByAblaufdatum(web, SecondReminderDaysOffset);
                             subject = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueSecondReminderTitle), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
                             body = SPUtility.GetLocalizedString(string.Format(JoinAMUtilities.ResxForJoinAMNotifications, DocumentOverdueSecondReminderBody), JoinAMUtilities.JoinAMNotificationsDefaultResourceFile, web.Language);
 
@@ -181,6 +181,11 @@
 
         private static void SendNotificationForDocuments(SPWeb web, SPListItemCollection documents, string mailTitle, string mailBody, int reminderCount)
         {
+            if (documents.Count < 1)
+            {
+                return;
+            }
+
             SPGroup groupProcessMgmnt = web.SiteGroups.GetByName(JoinAMUtilities.GroupNames.ProcessMgmnt);
             SPGroup groupQualityMgmnt = web.SiteGroups.GetByName(JoinAMUtilities.GroupNames.QualityMgmnt);
             StringBuilder maito = new StringBuilder();
@@ -225,20 +230,27 @@
 
                 string url = Convert.ToString(documentItem[SPBuiltInFieldId.EncodedAbsUrl]);
                 DateTime dueDate = Convert.ToDateTime(documentItem[Fields.DocumentDueDate]);
+                StringBuilder recipients = new StringBuilder();
                 foreach (SPFieldUserValue user in documentResponsible)
                 {
                     if (userId.Contains(user.User.ID))
                     {
                         continue;
                     }
-                    userId.Add(user.User.ID);
-                    if (!string.IsNullOrEmpty(user.User.Email))
+                    else if(!string.IsNullOrEmpty(user.User.Email))
                     {
-                        maito.Append(user.User.Email).Append(";");
+                        recipients.Append(user.User.Email).Append(";"); 
                     }
+                    //userId.Add(user.User.ID);
+                    //if (!string.IsNullOrEmpty(user.User.Email))
+                    //{
+                    //    maito.Append(user.User.Email).Append(";");
+                    //}
                 }
+                
+                recipients = recipients.Append(maito.ToString());
 
-                if (!string.IsNullOrEmpty(maito.ToString()))
+                if (!string.IsNullOrEmpty(recipients.ToString()))
                 {
                     if (reminderCount == 1) //first reminder
                     {
@@ -249,7 +261,7 @@
                         mailBody = string.Format(mailBody, url);
                     }
 
-                    JoinAMUtilities.SendEmail(documentItem.Web, maito.ToString(), string.Format(mailBody, url), mailTitle);
+                    JoinAMUtilities.SendEmail(documentItem.Web, recipients.ToString(), mailBody, mailTitle);
                 }
 
             }
@@ -257,6 +269,11 @@
 
         private static void SendNotificationForActions(SPWeb web, SPListItemCollection actions, string mailTitle, string mailBody, int reminderCount)
         {
+            if (actions.Count < 1)
+            {
+                return;
+            }
+
             SPGroup groupQualityMgmnt = web.SiteGroups.GetByName(JoinAMUtilities.GroupNames.QualityMgmnt);
             StringBuilder maito = new StringBuilder();
             List<int> userId = new List<int>();
@@ -279,26 +296,45 @@
 
             foreach (SPListItem actionItem in actions)
             {
+
                 string actionResponsible = Convert.ToString(actionItem[Fields.ActionResponsible]);
 
                 if (string.IsNullOrEmpty(actionResponsible))
                 {
                     continue;
                 }
+
                 SPFieldUserValue user = new SPFieldUserValue(actionItem.Web, actionResponsible);
                 string url = Convert.ToString(actionItem[SPBuiltInFieldId.EncodedAbsUrl]);
+                string recipients = string.Empty;
                 if (!string.IsNullOrEmpty(user.User.Email))
                 {
                     if (!userId.Contains(user.User.ID))
                     {
-                        maito.Append(user.User.Email).Append(";");
+                        recipients = user.User.Email;
+                        // check content type
+                        if (reminderCount == 2 && (actionItem.ContentType.Parent.Id == ContentTypeIds.RisikoChanceMassnahmen
+                        || actionItem.ContentType.Parent.Id == ContentTypeIds.MassnahmeausUnternehmenszielen
+                        || actionItem.ContentType.Parent.Id == ContentTypeIds.MassnahmeausPRIMA
+                        || actionItem.ContentType.Parent.Id == ContentTypeIds.Massnahme))
+                        {
+                            recipients = string.Format("{0};{1}", recipients, maito.ToString());
+                        }
+
+                        //maito.Append(user.User.Email).Append(";");
+                    }
+                    else
+                    {
+                        recipients = maito.ToString();
                     }
                 }
 
-                if (!string.IsNullOrEmpty(maito.ToString()))
+                
+
+                if (!string.IsNullOrEmpty(recipients))
                 {
                     mailBody = string.Format(mailBody, url);
-                    JoinAMUtilities.SendEmail(actionItem.Web, maito.ToString(), string.Format(mailBody, url), mailTitle);
+                    JoinAMUtilities.SendEmail(actionItem.Web, recipients, mailBody, mailTitle);
                 }
             }
         }
