@@ -241,11 +241,6 @@
                     {
                         recipients.Append(user.User.Email).Append(";"); 
                     }
-                    //userId.Add(user.User.ID);
-                    //if (!string.IsNullOrEmpty(user.User.Email))
-                    //{
-                    //    maito.Append(user.User.Email).Append(";");
-                    //}
                 }
                 
                 recipients = recipients.Append(maito.ToString());
@@ -321,7 +316,6 @@
                             recipients = string.Format("{0};{1}", recipients, maito.ToString());
                         }
 
-                        //maito.Append(user.User.Email).Append(";");
                     }
                     else
                     {
