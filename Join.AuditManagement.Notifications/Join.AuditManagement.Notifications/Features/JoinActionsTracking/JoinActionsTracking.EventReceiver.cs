@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using Join.AuditManagement.Notifications.Common;
+using Join.AuditManagement.Notifications.EventReceivers;
 using Microsoft.SharePoint;
 using Microsoft.SharePoint.Utilities;
 
@@ -74,9 +75,9 @@ namespace Join.AuditManagement.Notifications.Features.JoinActionsTracking
             string actionsUrl = SPUrlUtility.CombineUrl(web.ServerRelativeUrl.TrimEnd('/'), ListUtilities.Urls.Actions);
             SPList actionsList = web.GetList(actionsUrl);
 
-            JoinAMUtilities.AddListEventReceiver(actionsList, SPEventReceiverType.ItemAdded, Assembly.GetExecutingAssembly().FullName, "Join.AuditManagement.Notifications.EventReceivers.ActionsListEventReceiver", false);
-            JoinAMUtilities.AddListEventReceiver(actionsList, SPEventReceiverType.ItemUpdated, Assembly.GetExecutingAssembly().FullName, "Join.AuditManagement.Notifications.EventReceivers.ActionsListEventReceiver", false);
-            JoinAMUtilities.AddListEventReceiver(actionsList, SPEventReceiverType.ItemUpdating, Assembly.GetExecutingAssembly().FullName, "Join.AuditManagement.Notifications.EventReceivers.ActionsListEventReceiver", true);
+            JoinAMUtilities.AddListEventReceiver(actionsList, SPEventReceiverType.ItemAdded, Assembly.GetExecutingAssembly().FullName, typeof(ActionsListEventReceiver).FullName, false);
+            JoinAMUtilities.AddListEventReceiver(actionsList, SPEventReceiverType.ItemUpdated, Assembly.GetExecutingAssembly().FullName, typeof(ActionsListEventReceiver).FullName, false);
+            JoinAMUtilities.AddListEventReceiver(actionsList, SPEventReceiverType.ItemUpdating, Assembly.GetExecutingAssembly().FullName, typeof(ActionsListEventReceiver).FullName, true);
 
         }
     }

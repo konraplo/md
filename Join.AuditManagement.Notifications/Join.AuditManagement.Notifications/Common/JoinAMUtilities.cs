@@ -273,7 +273,6 @@ namespace Join.AuditManagement.Notifications.Common
             {
                 try
                 {
-                    Guid busiDevArtifactsFeatureGuid = new Guid("a3417bcf-d184-4f79-be16-a23c50462fa8");
                     using (SPSite site = new SPSite(siteId))
                     {
                         return site.RootWeb.Url;
